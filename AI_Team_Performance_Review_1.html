@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Team Performance Review – Vector Solutions</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F0EEE9;min-height:100vh;padding:20px 16px}
+.wrap{max-width:880px;margin:0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,0.10);overflow:hidden}
+.topbar{background:#1B4F8A;padding:14px 22px;display:flex;align-items:center;gap:12px}
+.topbar-title{color:#fff;font-size:15px;font-weight:700;letter-spacing:.01em}
+.topbar-sub{color:#BDD4F0;font-size:11px;margin-left:auto}
+.page{padding:22px;display:none}
+.page.active{display:block}
+.btn{background:#fff;border:1px solid #D3D1C7;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;color:#1A1A2E;font-family:inherit;transition:background .15s}
+.btn:hover{background:#F5F4F1}
+.btn-primary{background:#1B4F8A;color:#fff;border:none}
+.btn-primary:hover{background:#174270}
+.card{background:#fff;border:1px solid #E8E6DF;border-radius:12px;padding:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-notes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:680px){
+  .grid3{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+  .grid-notes{grid-template-columns:1fr}
+}
+.member-card{background:#fff;border:1px solid #E8E6DF;border-radius:12px;padding:14px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .2s}
+.member-card:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,0.09)}
+.member-card.done{border-color:#9FE1CB}
+.avatar-wrap{position:relative;border-radius:50%;overflow:hidden;flex-shrink:0;cursor:pointer}
+.avatar-wrap:hover .av-overlay{opacity:1}
+.av-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.44);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;font-size:9px;color:#fff;font-weight:600;text-align:center;line-height:1.4}
+.avatar-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.avatar-img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.prog-track{height:5px;border-radius:3px;background:#E8E6DF;overflow:hidden;flex:1}
+.prog-fill{height:100%;border-radius:3px;background:#1D9E75;transition:width .5s}
+.badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;display:inline-block}
+.seg-wrap{display:flex;align-items:center;gap:4px}
+.seg{flex:1;height:9px;border-radius:4px;cursor:pointer;transition:background .12s,transform .1s;border:none;outline:none;padding:0}
+.seg:hover{transform:scaleY(1.35)}
+.seg-label{font-size:10px;font-weight:600;min-width:80px;padding-left:6px}
+.lbl{font-size:10px;font-weight:700;color:#888780;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.muted{font-size:12px;color:#888780}
+textarea{font-family:inherit;resize:none;border:none;background:transparent;outline:none;color:#1A1A2E;font-size:12px;line-height:1.6;width:100%;display:block}
+.field{font-family:inherit;font-size:13px;color:#1A1A2E;background:transparent;border:none;border-bottom:1px solid #E8E6DF;outline:none;width:100%;padding-bottom:4px}
+.nav-pills{display:flex;gap:5px;justify-content:center}
+.nav-pill{width:28px;height:28px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid #E8E6DF;transition:border-color .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="#BDD4F0" stroke-width="1.5"/>
+      <path d="M8 12l2.5 2.5L16 9" stroke="#5DCAA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="topbar-title">AI Team Performance Review</span>
+    <span class="topbar-sub">Vector Solutions · AI Production</span>
+  </div>
+
+  <div id="page-team" class="page active">
+    <div style="margin-bottom:18px">
+      <div style="font-size:20px;font-weight:700;color:#1A1A2E;margin-bottom:8px">Team Overview</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <span class="muted" id="prog-label">0 / 6 reviewed</span>
+      </div>
+    </div>
+    <div class="grid3" id="team-grid"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-primary" onclick="showSummary()">View Full Summary →</button>
+    </div>
+  </div>
+
+  <div id="page-review" class="page">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn" onclick="showTeam()">← Team</button>
+      <div class="nav-pills" id="nav-pills"></div>
+      <button class="btn" id="nav-next" onclick="navNext()">Next →</button>
+    </div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div>
+        <div class="card" style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div class="avatar-wrap" id="rv-avatar" style="width:54px;height:54px" onclick="triggerPhotoUpload(currentMember)"></div>
+            <div>
+              <div id="rv-name" style="font-size:15px;font-weight:700;color:#1A1A2E"></div>
+              <div style="font-size:11px;color:#888780">AI Production · Vector Solutions</div>
+              <div style="font-size:10px;color:#B4B2A9;margin-top:2px;font-style:italic">Click photo to upload</div>
+            </div>
+          </div>
+          <div class="lbl">Role / Title</div>
+          <input class="field" id="rv-role" placeholder="e.g. Motion Designer" oninput="updateRole(this.value)">
+        </div>
+        <div class="card">
+          <div class="lbl">Skill Radar</div>
+          <div id="rv-radar" style="display:flex;justify-content:center"></div>
+          <div style="text-align:center;margin-top:6px" id="rv-badge"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="lbl">Skill Ratings</div>
+        <div id="rv-skills" style="display:flex;flex-direction:column;gap:14px"></div>
+      </div>
+    </div>
+    <div class="grid-notes" id="rv-notes"></div>
+  </div>
+
+  <div id="page-summary" class="page">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <button class="btn" onclick="showTeam()">← Team</button>
+      <span class="muted" style="margin-left:auto">All 6 members</span>
+    </div>
+    <div style="font-size:19px;font-weight:700;color:#1A1A2E;margin-bottom:4px">Full Team Summary</div>
+    <div class="muted" style="margin-bottom:16px">Vector Solutions · AI Production</div>
+    <div class="grid3" id="summary-grid"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="lbl">Manager's Closing Remarks</div>
+      <textarea id="closing-remarks" placeholder="Overall team observations, recognition, strategic notes for next period..." rows="4"></textarea>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+
+<script>
+var MEMBERS=[
+  {id:0,name:"Nihal Mishra",      initials:"NM",bg:"#B5D4F4",fg:"#0C447C",rc:"#378ADD"},
+  {id:1,name:"Ashutosh Sathe",    initials:"AS",bg:"#9FE1CB",fg:"#085041",rc:"#1D9E75"},
+  {id:2,name:"Aman Yadav",        initials:"AY",bg:"#FAC775",fg:"#633806",rc:"#BA7517"},
+  {id:3,name:"Sumit Singh",       initials:"SS",bg:"#F4C0D1",fg:"#4B1528",rc:"#D4537E"},
+  {id:4,name:"Sahil Siraj",       initials:"SJ",bg:"#CECBF6",fg:"#26215C",rc:"#7F77DD"},
+  {id:5,name:"Mohammad Shahzaib", initials:"MZ",bg:"#C0DD97",fg:"#27500A",rc:"#639922"}
+];
+var SKILLS=[
+  {key:"ai",    label:"AI Generations",    short:"AI Gen"},
+  {key:"video", label:"Video & Storyboard",short:"Video"},
+  {key:"audio", label:"Audio Mixing",      short:"Audio"},
+  {key:"motion",label:"Motion Graphics",   short:"Motion"},
+  {key:"final", label:"Final Assembly",    short:"Final Edit"}
+];
+var RLABELS=["","Needs Work","Developing","On Track","Exceeding","Outstanding"];
+var RFILL=["#E8E6DF","#FAC775","#EF9F27","#85B7EB","#5DCAA5","#1D9E75"];
+var RTEXT=["#888780","#633806","#412402","#042C53","#085041","#04342C"];
+var PREFILLED=[
+  {role:"AI Lead / Prompt Engineer",   ratings:{ai:5,video:4,audio:3,motion:4,final:4},strengths:"Exceptional prompt engineering skills. Consistently delivers high-quality AI generations with minimal revisions. Great at exploring creative directions quickly.",improvements:"Could improve on audio mixing fundamentals to better collaborate on sound design decisions.",goals:"Lead AI pipeline documentation. Explore video-to-video workflows for Q3 client deliverables."},
+  {role:"Video & Storyboard Artist",   ratings:{ai:3,video:5,audio:3,motion:4,final:4},strengths:"Best storyboarding in the team. Clear visual storytelling instincts. Boards are easy for everyone to work from.",improvements:"Should deepen AI generation knowledge to better brief the AI tools himself instead of relying on Nihal.",goals:"Own the full storyboard-to-animatic pipeline for Vector Solutions campaign in Q3."},
+  {role:"Audio Engineer",              ratings:{ai:2,video:2,audio:5,motion:3,final:4},strengths:"Outstanding audio mixing — always delivers polished, broadcast-quality sound. Great ear for music selection and foley. Very reliable.",improvements:"Needs to engage more with AI generation and storyboard review stages to reduce back-and-forth on audio sync.",goals:"Establish an audio style guide for Vector Solutions. Explore AI-assisted sound design tools."},
+  {role:"Motion Graphics Designer",    ratings:{ai:3,video:4,audio:2,motion:5,final:4},strengths:"Incredible motion graphics output. Strong grasp of brand consistency and transitions. Work consistently impresses clients.",improvements:"Audio awareness is low — often submits motion work without considering the sound layer.",goals:"Create a reusable motion template library. Mentor junior team members on After Effects workflows."},
+  {role:"Motion Graphics & AI",        ratings:{ai:4,video:3,audio:3,motion:4,final:3},strengths:"Strong blend of AI and motion skills. Versatile contributor. Good at bridging the gap between generation and animation.",improvements:"Final assembly skills need sharpening — tends to hand off too early. Should follow through to the full edit.",goals:"Contribute to at least 2 final edits end-to-end in Q3. Upskill on DaVinci Resolve colour grading."},
+  {role:"Final Editor / Compositor",   ratings:{ai:3,video:4,audio:4,motion:3,final:5},strengths:"Masterful at final assembly and compositing. Keeps cool under deadline pressure. The team relies on him to bring everything together seamlessly.",improvements:"Motion graphics output is average — could invest time learning keyframing principles to be more self-sufficient.",goals:"Own the final review process with the client. Reduce feedback rounds from 3 to 2 per project."}
+];
+
+var reviews=MEMBERS.map(function(m,i){return{role:PREFILLED[i].role,ratings:Object.assign({},PREFILLED[i].ratings),strengths:PREFILLED[i].strengths,improvements:PREFILLED[i].improvements,goals:PREFILLED[i].goals};});
+var photos=[null,null,null,null,null,null];
+var currentMember=0;
+var photoUploadTarget=0;
+
+function rFill(r){return RFILL[r]||RFILL[0];}
+function rText(r){return RTEXT[r]||RTEXT[0];}
+function avg(id){
+  var vals=SKILLS.map(function(s){return reviews[id].ratings[s.key];}).filter(function(v){return v>0;});
+  if(!vals.length)return 0;
+  return Math.round((vals.reduce(function(a,b){return a+b;},0)/vals.length)*10)/10;
+}
+function isComplete(id){return SKILLS.every(function(s){return reviews[id].ratings[s.key]>0;});}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function avatarHTML(id,size){
+  var m=MEMBERS[id],s=size||40;
+  if(photos[id])return '<img src="'+photos[id]+'" class="avatar-img" style="width:'+s+'px;height:'+s+'px">';
+  return '<div class="avatar-fallback" style="background:'+m.bg+';width:'+s+'px;height:'+s+'px">'+
+    '<svg width="'+(s*.38)+'" height="'+(s*.38)+'" viewBox="0 0 24 24" fill="none">'+
+    '<circle cx="12" cy="8" r="4" fill="'+m.fg+'" opacity=".75"/>'+
+    '<path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="'+m.fg+'" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>'+
+    '</svg></div>';
+}
+
+function drawRadar(ratings,color,size){
+  size=size||150;
+  var cx=size/2,cy=size/2,r=size*0.36;
+  var n=SKILLS.length;
+  var values=SKILLS.map(function(s){return(ratings[s.key]||0)/5;});
+  var rings=[0.2,0.4,0.6,0.8,1.0];
+  var svg='<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="display:block">';
+  // grid
+  rings.forEach(function(frac){
+    var pts=[];
+    for(var i=0;i<n;i++){var a=(Math.PI*2*i/n)-Math.PI/2;pts.push((cx+Math.cos(a)*r*frac).toFixed(1)+','+(cy+Math.sin(a)*r*frac).toFixed(1));}
+    svg+='<polygon points="'+pts.join(' ')+'" fill="none" stroke="#E8E6DF" stroke-width="0.8"/>';
+  });
+  // axes
+  for(var i=0;i<n;i++){
+    var a=(Math.PI*2*i/n)-Math.PI/2;
+    svg+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Math.cos(a)*r).toFixed(1)+'" y2="'+(cy+Math.sin(a)*r).toFixed(1)+'" stroke="#E8E6DF" stroke-width="0.8"/>';
+  }
+  // data
+  var hasData=values.some(function(v){return v>0;});
+  if(hasData){
+    var pts=[];
+    for(var i=0;i<n;i++){var a=(Math.PI*2*i/n)-Math.PI/2;pts.push((cx+Math.cos(a)*r*values[i]).toFixed(1)+','+(cy+Math.sin(a)*r*values[i]).toFixed(1));}
+    svg+='<polygon points="'+pts.join(' ')+'" fill="'+color+'" fill-opacity="0.2" stroke="'+color+'" stroke-width="1.5"/>';
+  }
+  // labels
+  var pad=size*0.145;
+  for(var i=0;i<n;i++){
+    var a=(Math.PI*2*i/n)-Math.PI/2;
+    var lx=(cx+Math.cos(a)*(r+pad)).toFixed(1);
+    var ly=(cy+Math.sin(a)*(r+pad)).toFixed(1);
+    var anchor='middle';
+    if(parseFloat(lx)<cx-4)anchor='end';
+    else if(parseFloat(lx)>cx+4)anchor='start';
+    svg+='<text x="'+lx+'" y="'+(parseFloat(ly)+3.5)+'" text-anchor="'+anchor+'" font-size="8" fill="#888780" font-family="inherit">'+SKILLS[i].short+'</text>';
+  }
+  svg+='</svg>';
+  return svg;
+}
+
+function updateProgress(){
+  var done=MEMBERS.filter(function(m){return isComplete(m.id);}).length;
+  document.getElementById('prog-fill').style.width=Math.round((done/6)*100)+'%';
+  document.getElementById('prog-label').textContent=done+' / 6 reviewed';
+}
+
+function renderTeam(){
+  updateProgress();
+  document.getElementById('team-grid').innerHTML=MEMBERS.map(function(m){
+    var rev=reviews[m.id],a=avg(m.id),comp=isComplete(m.id);
+    var hasData=SKILLS.some(function(s){return rev.ratings[s.key]>0;});
+    var radarHtml=hasData?drawRadar(rev.ratings,m.rc,110):'<div style="height:88px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888780">Click to add ratings</div>';
+    var badgeHtml=comp?'<span class="badge" style="background:'+rFill(Math.round(a))+';color:'+rText(Math.round(a))+'">'+a+' avg</span>':'<span style="font-size:10px;color:#888780">'+esc(rev.role)+'</span>';
+    return '<div class="member-card'+(comp?' done':'')+'" onclick="showReview('+m.id+')">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+        '<div class="avatar-wrap" style="width:36px;height:36px" onclick="event.stopPropagation();triggerPhotoUpload('+m.id+')">'+
+          avatarHTML(m.id,36)+'<div class="av-overlay">'+(photos[m.id]?'Change':'Add')+'</div></div>'+
+        '<div><div style="font-size:12px;font-weight:700;color:#1A1A2E;line-height:1.3">'+m.name+'</div>'+badgeHtml+'</div>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:center">'+radarHtml+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderReview(id){
+  currentMember=id;
+  var m=MEMBERS[id],rev=reviews[id];
+  var avEl=document.getElementById('rv-avatar');
+  avEl.innerHTML=avatarHTML(id,54)+'<div class="av-overlay">'+(photos[id]?'Change':'Add Photo')+'</div>';
+  document.getElementById('rv-name').textContent=m.name;
+  document.getElementById('rv-role').value=rev.role;
+  document.getElementById('nav-pills').innerHTML=MEMBERS.map(function(_m){
+    var active=_m.id===id;
+    var inner=photos[_m.id]?'<img src="'+photos[_m.id]+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">':'<span style="font-size:7px;font-weight:700;color:'+(active?_m.fg:'#888780')+'">'+_m.initials+'</span>';
+    return '<div class="nav-pill" style="background:'+(active?_m.bg:'#F5F4F1')+';border-color:'+(active?_m.fg:'#E8E6DF')+'" onclick="showReview('+_m.id+')">'+inner+'</div>';
+  }).join('');
+  var nextBtn=document.getElementById('nav-next');
+  if(id<5){nextBtn.textContent='Next →';nextBtn.className='btn';}
+  else{nextBtn.textContent='Summary →';nextBtn.className='btn btn-primary';}
+  document.getElementById('rv-radar').innerHTML=drawRadar(rev.ratings,m.rc,160);
+  var a=avg(id);
+  document.getElementById('rv-badge').innerHTML=a>0?'<span class="badge" style="background:'+rFill(Math.round(a))+';color:'+rText(Math.round(a))+'">'+a+' overall · '+RLABELS[Math.round(a)]+'</span>':'';
+  document.getElementById('rv-skills').innerHTML=SKILLS.map(function(s){
+    var val=rev.ratings[s.key]||0;
+    var segs=[1,2,3,4,5].map(function(i){
+      return '<button class="seg" style="background:'+(i<=val?rFill(val):'#E8E6DF')+'" onclick="setRating(\''+s.key+'\','+i+')" onmouseover="hoverSeg(\''+s.key+'\','+i+')" onmouseout="unhoverSeg(\''+s.key+'\')"></button>';
+    }).join('');
+    return '<div data-skill="'+s.key+'"><div style="font-size:12px;font-weight:600;color:#1A1A2E;margin-bottom:5px">'+s.label+'</div>'+
+      '<div class="seg-wrap">'+segs+'<span class="seg-label" id="lbl-'+s.key+'" style="color:'+rText(val)+'">'+(val?RLABELS[val]:'— tap to rate')+'</span></div></div>';
+  }).join('');
+  document.getElementById('rv-notes').innerHTML=[
+    {key:'strengths',label:'Key Strengths',ph:'What they do well...'},
+    {key:'improvements',label:'To Improve',ph:'Areas to grow...'},
+    {key:'goals',label:'Next Period Goals',ph:'Upcoming targets...'}
+  ].map(function(f){
+    return '<div class="card"><div class="lbl">'+f.label+'</div><textarea placeholder="'+f.ph+'" rows="5" oninput="updateNote(\''+f.key+'\',this.value)">'+esc(rev[f.key])+'</textarea></div>';
+  }).join('');
+}
+
+function hoverSeg(skillKey,val){
+  var wrap=document.querySelector('[data-skill="'+skillKey+'"] .seg-wrap');
+  if(!wrap)return;
+  wrap.querySelectorAll('.seg').forEach(function(s,i){s.style.background=(i+1)<=val?rFill(val):'#E8E6DF';});
+  var lbl=document.getElementById('lbl-'+skillKey);
+  if(lbl){lbl.textContent=RLABELS[val];lbl.style.color=rText(val);}
+}
+function unhoverSeg(skillKey){
+  var val=reviews[currentMember].ratings[skillKey]||0;
+  var lbl=document.getElementById('lbl-'+skillKey);
+  if(lbl){lbl.textContent=val?RLABELS[val]:'— tap to rate';lbl.style.color=rText(val);}
+  var wrap=document.querySelector('[data-skill="'+skillKey+'"] .seg-wrap');
+  if(wrap)wrap.querySelectorAll('.seg').forEach(function(s,i){s.style.background=(i+1)<=val?rFill(val):'#E8E6DF';});
+}
+function setRating(skillKey,val){
+  reviews[currentMember].ratings[skillKey]=(reviews[currentMember].ratings[skillKey]===val)?0:val;
+  renderReview(currentMember);
+}
+function updateRole(val){reviews[currentMember].role=val;}
+function updateNote(field,val){reviews[currentMember][field]=val;}
+
+function renderSummary(){
+  document.getElementById('summary-grid').innerHTML=MEMBERS.map(function(m){
+    var rev=reviews[m.id],a=avg(m.id);
+    var badge=a>0?'<span class="badge" style="background:'+rFill(Math.round(a))+';color:'+rText(Math.round(a))+'">'+a+'</span>':'<span style="font-size:9px;color:#888780">No ratings</span>';
+    var bars=SKILLS.map(function(s){
+      var v=rev.ratings[s.key]||0;
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
+        '<span style="font-size:9px;color:#888780;width:52px;flex-shrink:0">'+s.short+'</span>'+
+        '<div style="flex:1;height:5px;border-radius:3px;background:#E8E6DF;overflow:hidden"><div style="width:'+Math.round((v/5)*100)+'%;height:100%;background:'+rFill(v)+';border-radius:3px"></div></div>'+
+        '<span style="font-size:9px;font-weight:700;color:'+rText(v)+';min-width:10px;text-align:right">'+(v||'—')+'</span>'+
+      '</div>';
+    }).join('');
+    return '<div class="card" style="cursor:pointer" onclick="showReview('+m.id+')" onmouseenter="this.style.background=\'#FAFAF8\'" onmouseleave="this.style.background=\'#fff\'">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+        '<div class="avatar-wrap" style="width:34px;height:34px">'+avatarHTML(m.id,34)+'</div>'+
+        '<div><div style="font-size:12px;font-weight:700;color:#1A1A2E">'+m.name+'</div>'+badge+'</div>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:center;margin-bottom:8px">'+drawRadar(rev.ratings,m.rc,120)+'</div>'+
+      bars+'</div>';
+  }).join('');
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showTeam(){renderTeam();showPage('team');}
+function showReview(id){renderReview(id);showPage('review');}
+function showSummary(){renderSummary();showPage('summary');}
+function navNext(){if(currentMember<5)showReview(currentMember+1);else showSummary();}
+
+function triggerPhotoUpload(id){
+  photoUploadTarget=id;
+  document.getElementById('photo-input').value='';
+  document.getElementById('photo-input').click();
+}
+function handlePhotoUpload(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  photos[photoUploadTarget]=URL.createObjectURL(file);
+  var active=document.querySelector('.page.active').id;
+  if(active==='page-team')renderTeam();
+  else if(active==='page-review')renderReview(currentMember);
+  else renderSummary();
+}
+
+renderTeam();
+</script>
+</body>
+</html>
